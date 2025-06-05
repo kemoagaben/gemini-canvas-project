@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FindBuyer - Alıcı Odaklı Pazar Yeri</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Ana Container */
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 20px rgba(255, 107, 53, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: white;
+            color: #FF6B35;
+            transform: translateY(-2px);
+        }
+
+        /* Ana İçerik */
+        .main-content {
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 2rem;
+        }
+
+        /* Giriş Ekranı */
+        .welcome-screen {
+            text-align: center;
+            padding: 3rem 1rem;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .welcome-title {
+            font-size: 3rem;
+            color: #FF6B35;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(255,107,53,0.2);
+        }
+
+        .welcome-subtitle {
+            font-size: 1.5rem;
+            color: #666;
+            margin-bottom: 3rem;
+        }
+
+        /* Sektör Seçimi */
+        .sector-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .sector-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            border: 3px solid transparent;
+        }
+
+        .sector-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(255,107,53,0.3);
+            border-color: #FF6B35;
+        }
+
+        .sector-card.selected {
+            background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .sector-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .sector-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        /* Talep Listesi */
+        .requests-section {
+            display: none;
+            animation: slideIn 0.5s ease;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            color: #FF6B35;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .filter-bar {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 0.8rem 1.2rem;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .filter-input:focus {
+            outline: none;
+            border-color: #FF6B35;
+            box-shadow: 0 0 0 3px rgba(255,107,53,0.2);
+        }
+
+        .filter-select {
+            padding: 0.8rem 1.2rem;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+        }
+
+        /* Talep Kartları */
+        .requests-grid {
+            display: grid;
+            gap: 2rem;
+        }
+
+        .request-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .request-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(255,107,53,0.2);
+        }
+
+        .request-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .request-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .request-budget {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #FF6B35;
+        }
+
+        .request-description {
+            color: #666;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .request-meta {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #777;
+        }
+
+        .meta-icon {
+            font-size: 1.2rem;
+        }
+
+        .request-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255,107,53,0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        /* Gizli Kimlik Badge */
+        .privacy-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: #4CAF50;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        /* Satıcı Paneli */
+        .seller-panel {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .offer-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 0.8rem 1.2rem;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #FF6B35;
+            box-shadow: 0 0 0 3px rgba(255,107,53,0.2);
+        }
+
+        /* Chatbot Styles */
+        .chatbot-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+
+        .chat-button {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(255,107,53,0.4);
+            transition: all 0.3s;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .chat-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 30px rgba(255,107,53,0.6);
+        }
+
+        .chat-icon {
+            font-size: 2rem;
+        }
+
+        .chat-window {
+            position: fixed;
+            bottom: 120px;
+            right: 30px;
+            width: 400px;
+            height: 600px;
+            background: white;
+            border-radius: 20px;
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .chat-window.active {
+            display: flex;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%);
+            color: white;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-title {
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .close-btn:hover {
+            transform: rotate(90deg);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            background: #f9f9f9;
+        }
+
+        .message {
+            padding: 1rem 1.5rem;
+            border-radius: 20px;
+            max-width: 80%;
+            word-wrap: break-word;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .message.bot {
+            align-self: flex-start;
+            background: white;
+            color: #333;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%);
+            color: white;
+        }
+
+        .quick-replies {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .quick-reply-btn {
+            padding: 0.5rem 1rem;
+            background: white;
+            border: 2px solid #FF6B35;
+            color: #FF6B35;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .quick-reply-btn:hover {
+            background: #FF6B35;
+            color: white;
+        }
+
+        .typing {
+            display: flex;
+            gap: 0.3rem;
+            padding: 1rem;
+            align-self: flex-start;
+        }
+
+        .typing span {
+            width: 8px;
+            height: 8px;
+            background: #FF6B35;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing span:nth-child(2) { animation-delay: 0.2s; }
+        .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.7;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+
+        .chat-input-container {
+            padding: 1rem;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 0.5rem;
+            background: white;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 0.8rem 1.2rem;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            outline: none;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .chat-input:focus {
+            border-color: #FF6B35;
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%);
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Login Form */
+        .login-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .login-modal.active {
+            display: flex;
+        }
+
+        .login-form {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-title {
+            font-size: 2rem;
+            color: #FF6B35;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .welcome-title {
+                font-size: 2rem;
+            }
+            
+            .sector-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 1rem;
+            }
+            
+            .chat-window {
+                width: calc(100% - 40px);
+                height: calc(100% - 140px);
+                right: 20px;
+                bottom: 100px;
+            }
+            
+            .filter-bar {
+                flex-direction: column;
+            }
+            
+            .filter-input, .filter-select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">🛍️ FindBuyer</div>
+                <div class="nav-buttons">
+                    <button class="nav-btn" onclick="showWelcome()">Ana Sayfa</button>
+                    <button class="nav-btn" onclick="toggleUserType()">
+                        <span id="userTypeText">Alıcı</span> Modu
+                    </button>
+                    <button class="nav-btn" onclick="showLogin()">Giriş Yap</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Giriş Ekranı -->
+            <div id="welcomeScreen" class="welcome-screen">
+                <h1 class="welcome-title">FindBuyer'a Hoş Geldiniz!</h1>
+                <p class="welcome-subtitle">Ne arıyorsunuz? Hemen başlayalım!</p>
+                
+                <!-- Sektör Seçimi -->
+                <div class="sector-grid">
+                    <div class="sector-card" onclick="selectSector('automotive')">
+                        <div class="sector-icon">🚗</div>
+                        <div class="sector-name">Araç</div>
+                    </div>
+                    <div class="sector-card" onclick="selectSector('realestate')">
+                        <div class="sector-icon">🏠</div>
+                        <div class="sector-name">Emlak</div>
+                    </div>
+                    <div class="sector-card" onclick="selectSector('services')">
+                        <div class="sector-icon">🛠️</div>
+                        <div class="sector-name">Hizmet</div>
+                    </div>
+                    <div class="sector-card" onclick="selectSector('electronics')">
+                        <div class="sector-icon">📱</div>
+                        <div class="sector-name">Elektronik</div>
+                    </div>
+                    <div class="sector-card" onclick="selectSector('fashion')">
+                        <div class="sector-icon">👕</div>
+                        <div class="sector-name">Moda</div>
+                    </div>
+                    <div class="sector-card" onclick="selectSector('other')">
+                        <div class="sector-icon">📦</div>
+                        <div class="sector-name">Diğer</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Talep Listesi -->
+            <div id="requestsSection" class="requests-section">
+                <h2 class="section-title">Aktif Talepler</h2>
+                
+                <!-- Filtreler -->
+                <div class="filter-bar">
+                    <input type="text" class="filter-input" placeholder="Talep ara..." id="searchInput" onkeyup="filterRequests()">
+                    <select class="filter-select" id="budgetFilter" onchange="filterRequests()">
+                        <option value="">Tüm Bütçeler</option>
+                        <option value="0-50000">0 - 50.000 TL</option>
+                        <option value="50000-200000">50.000 - 200.000 TL</option>
+                        <option value="200000-500000">200.000 - 500.000 TL</option>
+                        <option value="500000+">500.000 TL +</option>
+                    </select>
+                    <select class="filter-select" id="locationFilter" onchange="filterRequests()">
+                        <option value="">Tüm Lokasyonlar</option>
+                        <option value="istanbul">İstanbul</option>
+                        <option value="ankara">Ankara</option>
+                        <option value="izmir">İzmir</option>
+                        <option value="online">Online</option>
+                    </select>
+                </div>
+
+                <!-- Talep Kartları -->
+                <div id="requestsGrid" class="requests-grid">
+                    <!-- Dinamik olarak doldurulacak -->
+                </div>
+            </div>
+
+            <!-- Satıcı Paneli -->
+            <div id="sellerPanel" class="seller-panel">
+                <h2 class="section-title">Teklif Ver</h2>
+                <div class="offer-form">
+                    <div class="form-group">
+                        <label class="form-label">Teklif Fiyatı (TL)</label>
+                        <input type="number" class="form-input" placeholder="Örn: 450.000">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Teklif Açıklaması</label>
+                        <textarea class="form-textarea" placeholder="Ürün/hizmet detaylarını yazın..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Teslimat Süresi</label>
+                        <select class="form-input">
+                            <option>Hemen</option>
+                            <option>1-3 gün</option>
+                            <option>1 hafta</option>
+                            <option>1 ay</option>
+                        </select>
+                    </div>
+                    <button class="action-btn btn-primary" onclick="submitOffer()">Teklif Gönder</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Chatbot -->
+        <div class="chatbot-container">
+            <div class="chat-button" onclick="openChat()">
+                <div class="chat-icon">💬</div>
+            </div>
+
+            <div class="chat-window" id="chatWindow">
+                <div class="chat-header">
+                    <div class="chat-title">FindBuyer Asistanı</div>
+                    <button class="close-btn" onclick="closeChat()">✕</button>
+                </div>
+                
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message bot">
+                        Merhaba! 👋 Ben FindBuyer asistanınızım. Size nasıl yardımcı olabilirim?
+                        <div class="quick-replies">
+                            <button class="quick-reply-btn" onclick="quickReply('Nasıl çalışır?')">Nasıl çalışır?</button>
+                            <button class="quick-reply-btn" onclick="quickReply('Üye olmak istiyorum')">Üye olmak istiyorum</button>
+                            <button class="quick-reply-btn" onclick="quickReply('Talep oluştur')">Talep oluştur</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chat-input-container">
+                    <input type="text" class="chat-input" id="messageInput" placeholder="Mesajınızı yazın...">
+                    <button class="send-btn" onclick="sendMessage()">➤</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Modal -->
+        <div class="login-modal" id="loginModal">
+            <div class="login-form">
+                <h2 class="login-title">FindBuyer'a Giriş</h2>
+                <div class="form-group">
+                    <label class="form-label">E-posta</label>
+                    <input type="email" class="form-input" placeholder="ornek@email.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Şifre</label>
+                    <input type="password" class="form-input" placeholder="••••••••">
+                </div>
+                <button class="action-btn btn-primary" onclick="login()">Giriş Yap</button>
+                <button class="action-btn btn-secondary" onclick="closeLogin()">İptal</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global değişkenler
+        let selectedSector = null;
+        let isSellerMode = false;
+        let currentRequests = [];
+        let chatState = {
+            step: null,
+            data: {}
+        };
+
+        // Mock veri - Talepler
+        const mockRequests = {
+            automotive: [
+                {
+                    id: 1,
+                    title: "2020 Model SUV Araç",
+                    description: "Otomatik vites, düşük km, tercihen beyaz renk SUV araç arıyorum.",
+                    budget: 850000,
+                    location: "İstanbul",
+                    date: "2025-01-15",
+                    offers: 5
+                },
+                {
+                    id: 2,
+                    title: "Ticari Minibüs",
+                    description: "15 kişilik, 2018 sonrası model minibüs arıyorum. Turizm amaçlı kullanılacak.",
+                    budget: 650000,
+                    location: "Ankara",
+                    date: "2025-01-14",
+                    offers: 3
+                }
+            ],
+            realestate: [
+                {
+                    id: 3,
+                    title: "3+1 Kiralık Daire",
+                    description: "Kadıköy civarı, eşyalı, deniz manzaralı daire arıyorum.",
+                    budget: 25000,
+                    location: "İstanbul",
+                    date: "2025-01-16",
+                    offers: 8
+                },
+                {
+                    id: 4,
+                    title: "Satılık İşyeri",
+                    description: "Ana cadde üzeri, 100-150 m² arası dükkan arıyorum.",
+                    budget: 2500000,
+                    location: "İzmir",
+                    date: "2025-01-13",
+                    offers: 4
+                }
+            ],
+            services: [
+                {
+                    id: 5,
+                    title: "Web Sitesi Tasarımı",
+                    description: "Kurumsal web sitesi tasarımı ve kodlaması için profesyonel ekip arıyorum.",
+                    budget: 50000,
+                    location: "Online",
+                    date: "2025-01-16",
+                    offers: 12
+                },
+                {
+                    id: 6,
+                    title: "Ev Tadilatı",
+                    description: "150 m² daire için komple tadilat. Anahtar teslim iş.",
+                    budget: 350000,
+                    location: "İstanbul",
+                    date: "2025-01-12",
+                    offers: 7
+                }
+            ],
+            electronics: [
+                {
+                    id: 7,
+                    title: "Gaming Laptop",
+                    description: "RTX 4060 ve üzeri ekran kartlı, 16GB RAM gaming laptop.",
+                    budget: 45000,
+                    location: "Online",
+                    date: "2025-01-15",
+                    offers: 6
+                }
+            ],
+            fashion: [
+                {
+                    id: 8,
+                    title: "Toplu Kıyafet Alımı",
+                    description: "Mağaza için yaz sezonu kadın giyim koleksiyonu.",
+                    budget: 200000,
+                    location: "İstanbul",
+                    date: "2025-01-14",
+                    offers: 9
+                }
+            ],
+            other: [
+                {
+                    id: 9,
+                    title: "Catering Hizmeti",
+                    description: "500 kişilik düğün için catering hizmeti.",
+                    budget: 150000,
+                    location: "Ankara",
+                    date: "2025-01-10",
+                    offers: 11
+                }
+            ]
+        };
+
+        // Sektör seçimi
+        function selectSector(sector) {
+            selectedSector = sector;
+            document.querySelectorAll('.sector-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.target.closest('.sector-card').classList.add('selected');
+            
+            setTimeout(() => {
+                showRequests(sector);
+            }, 300);
+        }
+
+        // Talepleri göster
+        function showRequests(sector) {
+            document.getElementById('welcomeScreen').style.display = 'none';
+            document.getElementById('requestsSection').style.display = 'block';
+            document.getElementById('sellerPanel').style.display = 'none';
+            
+            currentRequests = mockRequests[sector] || [];
+            displayRequests(currentRequests);
+        }
+
+        // Talepleri ekrana bas
+        function displayRequests(requests) {
+            const grid = document.getElementById('requestsGrid');
+            grid.innerHTML = '';
+            
+            requests.forEach(request => {
+                const card = document.createElement('div');
+                card.className = 'request-card';
+                card.innerHTML = `
+                    <div class="privacy-badge">
+                        <span>🔒</span> Kimlik Gizli
+                    </div>
+                    <div class="request-header">
+                        <h3 class="request-title">${request.title}</h3>
+                        <div class="request-budget">${formatCurrency(request.budget)}</div>
+                    </div>
+                    <p class="request-description">${request.description}</p>
+                    <div class="request-meta">
+                        <div class="meta-item">
+                            <span class="meta-icon">📍</span>
+                            <span>${request.location}</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-icon">📅</span>
+                            <span>${formatDate(request.date)}</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-icon">💼</span>
+                            <span>${request.offers} teklif</span>
+                        </div>
+                    </div>
+                    <div class="request-actions">
+                        ${isSellerMode ? 
+                            `<button class="action-btn btn-primary" onclick="makeOffer(${request.id})">Teklif Ver</button>` :
+                            `<button class="action-btn btn-primary" onclick="viewOffers(${request.id})">Teklifleri Gör</button>`
+                        }
+                        <button class="action-btn btn-secondary" onclick="viewDetails(${request.id})">Detaylar</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Filtreleme
+        function filterRequests() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const budgetFilter = document.getElementById('budgetFilter').value;
+            const locationFilter = document.getElementById('locationFilter').value;
+            
+            let filtered = currentRequests;
+            
+            // Arama filtresi
+            if (searchTerm) {
+                filtered = filtered.filter(r => 
+                    r.title.toLowerCase().includes(searchTerm) ||
+                    r.description.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            // Bütçe filtresi
+            if (budgetFilter) {
+                if (budgetFilter === '500000+') {
+                    filtered = filtered.filter(r => r.budget >= 500000);
+                } else {
+                    const [min, max] = budgetFilter.split('-').map(Number);
+                    filtered = filtered.filter(r => r.budget >= min && r.budget <= max);
+                }
+            }
+            
+            // Lokasyon filtresi
+            if (locationFilter) {
+                filtered = filtered.filter(r => 
+                    r.location.toLowerCase() === locationFilter
+                );
+            }
+            
+            displayRequests(filtered);
+        }
+
+        // Kullanıcı tipi değiştir
+        function toggleUserType() {
+            isSellerMode = !isSellerMode;
+            document.getElementById('userTypeText').textContent = isSellerMode ? 'Satıcı' : 'Alıcı';
+            
+            if (currentRequests.length > 0) {
+                displayRequests(currentRequests);
+            }
+        }
+
+        // Teklif ver
+        function makeOffer(requestId) {
+            if (!isLoggedIn()) {
+                alert('Teklif vermek için giriş yapmalısınız!');
+                showLogin();
+                return;
+            }
+            
+            document.getElementById('requestsSection').style.display = 'none';
+            document.getElementById('sellerPanel').style.display = 'block';
+        }
+
+        // Teklif gönder
+        function submitOffer() {
+            alert('Teklifiniz başarıyla gönderildi! Alıcı sizinle iletişime geçecektir.');
+            showWelcome();
+        }
+
+        // Ana sayfaya dön
+        function showWelcome() {
+            document.getElementById('welcomeScreen').style.display = 'block';
+            document.getElementById('requestsSection').style.display = 'none';
+            document.getElementById('sellerPanel').style.display = 'none';
+        }
+
+        // Giriş modalı
+        function showLogin() {
+            document.getElementById('loginModal').classList.add('active');
+        }
+
+        function closeLogin() {
+            document.getElementById('loginModal').classList.remove('active');
+        }
+
+        function login() {
+            localStorage.setItem('isLoggedIn', 'true');
+            closeLogin();
+            alert('Başarıyla giriş yaptınız!');
+        }
+
+        function isLoggedIn() {
+            return localStorage.getItem('isLoggedIn') === 'true';
+        }
+
+        // Chatbot fonksiyonları
+        function openChat() {
+            document.getElementById('chatWindow').classList.add('active');
+        }
+        
+        function closeChat() {
+            document.getElementById('chatWindow').classList.remove('active');
+        }
+        
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                addMessage(message, 'user');
+                input.value = '';
+                
+                showTyping();
+                
+                setTimeout(() => {
+                    hideTyping();
+                    const response = getChatbotResponse(message);
+                    addMessage(response.text, 'bot', response.quickReplies);
+                }, 1000);
+            }
+        }
+        
+        function quickReply(text) {
+            document.getElementById('messageInput').value = text;
+            sendMessage();
+        }
+        
+        function addMessage(text, type, quickReplies = null) {
+            const messages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            let content = text;
+            if (quickReplies && quickReplies.length > 0) {
+                content += '<div class="quick-replies">';
+                quickReplies.forEach(reply => {
+                    content += `<button class="quick-reply-btn" onclick="quickReply('${reply}')">${reply}</button>`;
+                });
+                content += '</div>';
+            }
+            
+            messageDiv.innerHTML = content;
+            messages.appendChild(messageDiv);
+            messages.scrollTop = messages.scrollHeight;
+        }
+        
+        function showTyping() {
+            const messages = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing';
+            typingDiv.id = 'typing';
+            typingDiv.innerHTML = '<span></span><span></span><span></span>';
+            messages.appendChild(typingDiv);
+            messages.scrollTop = messages.scrollHeight;
+        }
+        
+        function hideTyping() {
+            const typing = document.getElementById('typing');
+            if (typing) {
+                typing.remove();
+            }
+        }
+        
+        function getChatbotResponse(message) {
+            const msg = message.toLowerCase();
+            
+            // Üyelik akışı
+            if (msg.includes('üye') || msg.includes('kayıt')) {
+                if (!chatState.step) {
+                    chatState.step = 'register_start';
+                    return {
+                        text: 'Harika! FindBuyer\'a üye olmak istiyorsunuz. Öncelikle, alıcı mı yoksa satıcı olarak mı kayıt olmak istersiniz?',
+                        quickReplies: ['Alıcı olarak', 'Satıcı olarak', 'Her ikisi de']
+                    };
+                }
+            }
+            
+            // Üyelik tipi seçimi
+            if (chatState.step === 'register_start') {
+                if (msg.includes('alıcı')) {
+                    chatState.data.userType = 'buyer';
+                    chatState.step = 'register_name';
+                    return {
+                        text: 'Alıcı olarak kayıt oluyorsunuz. Adınız ve soyadınız nedir?'
+                    };
+                } else if (msg.includes('satıcı')) {
+                    chatState.data.userType = 'seller';
+                    chatState.step = 'register_name';
+                    return {
+                        text: 'Satıcı olarak kayıt oluyorsunuz. Firma adınız nedir?'
+                    };
+                } else if (msg.includes('ikisi')) {
+                    chatState.data.userType = 'both';
+                    chatState.step = 'register_name';
+                    return {
+                        text: 'Hem alıcı hem satıcı olarak kayıt oluyorsunuz. Adınız ve soyadınız nedir?'
+                    };
+                }
+            }
+            
+            // İsim girişi
+            if (chatState.step === 'register_name') {
+                chatState.data.name = message;
+                chatState.step = 'register_email';
+                return {
+                    text: `Merhaba ${message}! E-posta adresinizi alabilir miyim?`
+                };
+            }
+            
+            // E-posta girişi
+            if (chatState.step === 'register_email') {
+                if (message.includes('@')) {
+                    chatState.data.email = message;
+                    chatState.step = 'register_phone';
+                    return {
+                        text: 'Harika! Son olarak telefon numaranızı alabilir miyim?'
+                    };
+                } else {
+                    return {
+                        text: 'Lütfen geçerli bir e-posta adresi girin.'
+                    };
+                }
+            }
+            
+            // Telefon girişi
+            if (chatState.step === 'register_phone') {
+                chatState.data.phone = message;
+                chatState.step = null;
+                return {
+                    text: `Tebrikler ${chatState.data.name}! 🎉 Kaydınız başarıyla tamamlandı.\n\n📧 E-posta: ${chatState.data.email}\n📱 Telefon: ${chatState.data.phone}\n👤 Üyelik Tipi: ${chatState.data.userType === 'buyer' ? 'Alıcı' : chatState.data.userType === 'seller' ? 'Satıcı' : 'Alıcı + Satıcı'}\n\nŞimdi giriş yaparak FindBuyer\'ın tüm özelliklerinden yararlanabilirsiniz!`,
+                    quickReplies: ['Giriş yap', 'Nasıl çalışır?', 'Talep oluştur']
+                };
+            }
+            
+            // Diğer yanıtlar
+            if (msg.includes('merhaba') || msg.includes('selam')) {
+                return {
+                    text: 'Merhaba! Ben FindBuyer asistanınızım. Size nasıl yardımcı olabilirim?',
+                    quickReplies: ['Üye olmak istiyorum', 'Nasıl çalışır?', 'Talep oluştur']
+                };
+            }
+            
+            if (msg.includes('nasıl çalışır')) {
+                return {
+                    text: '🔍 FindBuyer şöyle çalışır:\n\n👤 Alıcılar:\n1. İhtiyacınızı talep olarak oluşturun\n2. Satıcılardan teklifler alın\n3. En uygun teklifi seçin\n\n🏪 Satıcılar:\n1. Aktif talepleri görüntüleyin\n2. İlgilendiğiniz taleplere teklif verin\n3. Alıcılarla iletişime geçin\n\n✅ Alıcı kimliği her zaman gizli tutulur!',
+                    quickReplies: ['Üye olmak istiyorum', 'Talep oluştur', 'Daha fazla bilgi']
+                };
+            }
+            
+            if (msg.includes('talep')) {
+                return {
+                    text: 'Talep oluşturmak için önce üye olmanız gerekiyor. Üye olduktan sonra:\n\n1. Kategori seçin\n2. Ne aradığınızı detaylı yazın\n3. Bütçenizi belirtin\n4. Teklifleri bekleyin!\n\nÜye olmak ister misiniz?',
+                    quickReplies: ['Evet, üye olmak istiyorum', 'Hayır, teşekkürler']
+                };
+            }
+            
+            if (msg.includes('giriş')) {
+                return {
+                    text: 'Giriş yapmak için sayfanın sağ üstündeki "Giriş Yap" butonuna tıklayabilirsiniz. E-posta ve şifrenizle giriş yapabilirsiniz.',
+                    quickReplies: ['Şifremi unuttum', 'Üye değilim']
+                };
+            }
+            
+            // Default yanıt
+            return {
+                text: 'Size nasıl yardımcı olabilirim? Sorularınızı sorabilir veya aşağıdaki seçeneklerden birini seçebilirsiniz.',
+                quickReplies: ['Üye olmak istiyorum', 'Nasıl çalışır?', 'İletişim']
+            };
+        }
+        
+        // Yardımcı fonksiyonlar
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('tr-TR', {
+                style: 'currency',
+                currency: 'TRY',
+                minimumFractionDigits: 0
+            }).format(amount);
+        }
+        
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const options = { day: 'numeric', month: 'long', year: 'numeric' };
+            return date.toLocaleDateString('tr-TR', options);
+        }
+        
+        function viewOffers(requestId) {
+            alert(`Talep #${requestId} için gelen teklifleri görüntülüyorsunuz.`);
+        }
+        
+        function viewDetails(requestId) {
+            alert(`Talep #${requestId} detaylarını görüntülüyorsunuz.`);
+        }
+        
+        // Enter tuşu ile mesaj gönderme
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        // Sayfa yüklendiğinde
+        window.onload = function() {
+            console.log('FindBuyer hazır! 🛍️');
+        };
+    </script>
+</body>
+</html>
